@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Huhtamaki Weight Control</title>
+
+<style>
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f5f6fa;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:800px;
+    margin:auto;
+}
+
+.header{
+    background:#003DA5;
+    color:white;
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+.header h1{
+    margin:0;
+    font-size:32px;
+}
+
+.header h2{
+    margin:5px 0 0 0;
+    font-size:18px;
+    font-weight:normal;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    padding:15px;
+    margin-bottom:15px;
+}
+
+.card-title{
+    background:#003DA5;
+    color:white;
+    padding:10px;
+    border-radius:6px;
+    font-weight:bold;
+    margin:-15px -15px 15px -15px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0;
+}
+
+.row span:first-child{
+    font-weight:bold;
+}
+
+.divider{
+    border-top:1px solid #ddd;
+    margin:12px 0;
+}
+
+.input-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+label{
+    margin-bottom:4px;
+    font-size:14px;
+}
+
+input{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:16px;
+}
+
+.deviation{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.adjustment{
+    font-size:18px;
+    font-weight:bold;
+}
+
+@media(max-width:600px){
+
+    .input-grid{
+        grid-template-columns:1fr;
+    }
+
+    .row{
+        font-size:14px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>HUHTAMAKI</h1>
+        <h2>Weight Control</h2>
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+            PRODUCT PARAMETERS
+        </div>
+
+        <div class="row">
+            <span>Machine dryness</span>
+            <span id="machineDryness">0.00 %</span>
+        </div>
+
+        <div class="row">
+            <span>Moisture content</span>
+            <span id="moistureContent">0.00 %</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <span>Wet weight</span>
+            <span id="wetWeightResult">0.0 g</span>
+        </div>
+
+        <div class="row">
+            <span>Wet should be</span>
+            <span id="wetShouldBe">0.0 g</span>
+        </div>
+
+        <div class="row">
+            <span>Adjustment</span>
+            <span id="adjustment" class="adjustment">0.0 g</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <span>Dry weight</span>
+            <span id="dryWeightResult">0.0 g</span>
+        </div>
+
+        <div class="row">
+            <span>Bone dry</span>
+            <span id="boneDryResult">0.0 g</span>
+        </div>
+
+        <div class="row">
+            <span>Target bone dry</span>
+            <span id="targetBoneDryResult">0.0 g</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row deviation">
+            <span>Deviation</span>
+            <span id="deviation">0.0 g</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <span>Dryer temp</span>
+            <span id="dryerTempResult">0 °C</span>
+        </div>
+
+        <div class="row">
+            <span>Speed</span>
+            <span id="speedResult">0 KO</span>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+            INPUT DATA
+        </div>
+
+        <div class="input-grid">
+
+            <div class="input-group">
+                <label>Wet Weight (g)</label>
+                <input id="wet" value="214.4">
+            </div>
+
+            <div class="input-group">
+                <label>Dry Weight (g)</label>
+                <input id="dry" value="73.4">
+            </div>
+
+            <div class="input-group">
+                <label>Bone Dry (g)</label>
+                <input id="boneDry" value="71">
+            </div>
+
+            <div class="input-group">
+                <label>Target Bone Dry (g)</label>
+                <input id="targetBoneDry" value="72.5">
+            </div>
+
+            <div class="input-group">
+                <label>Dryer Temp (°C)</label>
+                <input id="dryerTemp" value="224">
+            </div>
+
+            <div class="input-group">
+                <label>Speed (KO)</label>
+                <input id="speed" value="35">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const inputs = document.querySelectorAll("input");
+
+inputs.forEach(input => {
+    input.addEventListener("input", calculate);
+});
+
+function calculate(){
+
+    const wet =
+        parseFloat(
+            document.getElementById("wet")
+            .value.replace(",", ".")
+        );
+
+    const dry =
+        parseFloat(
+            document.getElementById("dry")
+            .value.replace(",", ".")
+        );
+
+    const boneDry =
+        parseFloat(
+            document.getElementById("boneDry")
+            .value.replace(",", ".")
+        );
+
+    const target =
+        parseFloat(
+            document.getElementById("targetBoneDry")
+            .value.replace(",", ".")
+        );
+
+    const dryerTemp =
+        document.getElementById("dryerTemp").value;
+
+    const speed =
+        document.getElementById("speed").value;
+
+    if(
+        isNaN(wet) ||
+        isNaN(dry) ||
+        isNaN(boneDry) ||
+        isNaN(target)
+    ){
+        return;
+    }
+
+    const machineDryness =
+        (boneDry / wet) * 100;
+
+    const moistureContent =
+        ((dry - boneDry) / dry) * 100;
+
+    const wetShouldBe =
+        (target / machineDryness) * 100;
+
+    const deviation =
+        boneDry - target;
+
+    const adjustment =
+        wetShouldBe - wet;
+
+    document.getElementById("machineDryness")
+        .innerText =
+        machineDryness.toFixed(2) + " %";
+
+    document.getElementById("moistureContent")
+        .innerText =
+        moistureContent.toFixed(2) + " %";
+
+    document.getElementById("wetWeightResult")
+        .innerText =
+        wet.toFixed(1) + " g";
+
+    document.getElementById("wetShouldBe")
+        .innerText =
+        wetShouldBe.toFixed(1) + " g";
+
+    document.getElementById("dryWeightResult")
+        .innerText =
+        dry.toFixed(1) + " g";
+
+    document.getElementById("boneDryResult")
+        .innerText =
+        boneDry.toFixed(1) + " g";
+
+    document.getElementById("targetBoneDryResult")
+        .innerText =
+        target.toFixed(1) + " g";
+
+    const deviationElement =
+        document.getElementById("deviation");
+
+    deviationElement.innerText =
+        deviation.toFixed(1) + " g";
+
+    deviationElement.style.color =
+        deviation < 0 ? "red" : "green";
+
+    const adjustmentElement =
+        document.getElementById("adjustment");
+
+    adjustmentElement.innerText =
+        (adjustment > 0 ? "+" : "") +
+        adjustment.toFixed(1) + " g";
+
+    adjustmentElement.style.color =
+        adjustment > 0 ? "green" : "red";
+
+    document.getElementById("dryerTempResult")
+        .innerText =
+        dryerTemp + " °C";
+
+    document.getElementById("speedResult")
+        .innerText =
+        speed + " KO";
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
